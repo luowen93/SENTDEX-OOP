@@ -7,4 +7,5 @@ Lesson 13: Creating an object class of "Blob" to be used in pygame animation \
 Lesson 14: Setting up the pygame environment, and drawing the blob on the screen \
 Lesson 15: Creating list of dictionaries of blobs to keep track of the specific blobs \
 Lesson 16: Examples of how to make modular class for import \
-Lesson 17: Praticing with inheritance and super()
+Lesson 17: Praticing with inheritance and super() \
+Lesson 18: Practicing examples with decorators 
