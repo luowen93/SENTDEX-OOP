@@ -15,10 +15,8 @@ class Blob:
         self.stepRange = stepRange
 
     def move(self):
-        self.move_x = random.randrange(self.stepRange[0],self.stepRange[1]) # Don't really understand what's happening here
-        self.move_y = random.randrange(self.stepRange[0],self.stepRange[1])
-        self.x += self.move_x
-        self.y += self.move_y
+        self.x += random.randrange(self.stepRange[0],self.stepRange[1])
+        self.y += random.randrange(self.stepRange[0],self.stepRange[1])
 
     def check_bounds(self):
         # Boundary conditions so blobs don't move out of bounds
