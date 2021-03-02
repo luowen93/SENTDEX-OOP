@@ -12,4 +12,6 @@ Lesson 18: Practicing examples with decorators \
 Lesson 19: Overloading special operators (addition) \
 Lesson 20: Implementing collision handling and state updating \ 
 Lesson 21: Practice with generators and definitions, generators and iterables are different \
-Lesson 22: Added logging to the blob game, examples of multiple level logging
+Lesson 22: Added logging to the blob game, examples of multiple level logging \
+Lesson 23: Added error logging functions using sys \ 
+Lesson 24: Logging with __repr__ and __str__ overloads

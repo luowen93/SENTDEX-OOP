@@ -15,6 +15,12 @@ class Blob:
         self.y_bnd = y_bnd
         self.stepRange = stepRange
 
+    def __repr__(self):
+        return 'Blob({s.color},{s.size},({s.x},{s.y}))'.format(s = self)
+
+    def __str__(self):
+        return 'Blob of color: {s.color}, size: {s.size}, location: ({s.x},{s.y})'.format(s = self)
+
     def move(self):
         self.x += random.randrange(self.stepRange[0], self.stepRange[1])
         self.y += random.randrange(self.stepRange[0], self.stepRange[1])

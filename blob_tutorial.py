@@ -48,7 +48,7 @@ class BlueBlob(Blob): # Inherit from blobs
         Blob.__init__(self,(0,0,255), x_bnd, y_bnd, step) # Must have self passed
 
     def __add__(self,other_blob):
-        logging.info('Blob add op {} + {}'.format(str(self.color), str(other_blob.color)))
+        logging.info('Blob add op {} + {}'.format(self, other_blob ))
         # Green adds size, red subtracts sizeRange
         if( other_blob.color == (255, 0, 0) ):
             # Red blob subtracts size (damage)
@@ -113,6 +113,7 @@ def draw_environment(blob_list_dict):
 
 def main():
 
+
     red_blobs = [RedBlob(WIDTH,HEIGHT,STEP) for i in range(STARTING_RED_BLOBS)] # List comprehension for create list of red blobs
     red_blobs = dict(enumerate(red_blobs))
 
@@ -121,6 +122,9 @@ def main():
 
     blue_blobs = [BlueBlob(WIDTH,HEIGHT,STEP) for i in range(STARTING_BLUE_BLOBS)] # List comprehension for creating list of blue blobs
     blue_blobs = dict(enumerate((blue_blobs))) # Change into a dictionary with numbers being ID's starting at 0
+
+    print(blue_blobs[0])
+    print(str(blue_blobs[0]))
 
     while True: # Infinite loop
         try:
