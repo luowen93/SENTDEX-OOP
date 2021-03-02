@@ -1,96 +1,121 @@
 import pygame
 import random
-from blob import Blob  # Requires blob.py class to be in the same folder
+import numpy as np
+from blob import Blob # Requires blob.py class to be in the same folder
 
-STARTING_BLUE_BLOBS = 10
-STARTING_RED_BLOBS = 3
-STARTING_GREEN_BLOBS = 2
+STARTING_BLUE_BLOBS = 15
+STARTING_RED_BLOBS = 15
+STARTING_GREEN_BLOBS = 15
 
 WIDTH = 800
 HEIGHT = 600
-STEP = [-4, 4]
+STEP = [-4,4]
 
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 
-game_display = pygame.display.set_mode((WIDTH, HEIGHT))
+game_display = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Blob World")
 clock = pygame.time.Clock()
 
-
-class BlueBlob(Blob):  # Inherit from blobs
+class RedBlob(Blob): # Inherit from blobs
     # Define init params
-    def __init__(self, x_bnd, y_bnd, step=[-1, 2]):
-        Blob.__init__(self, (0, 0, 255), x_bnd, y_bnd, step)
+    def __init__(self, x_bnd, y_bnd, step = [-1,2]):
+        Blob.__init__(self,(255,0,0), x_bnd, y_bnd, step) # Must have self passed
 
-    # Overloading the addition operator
-    def __add__(self, other_blob):
-        if other_blob.color == (255, 0, 0):  # If other blob is red_blobs
-            self.size -= other_blob.size
-            other_blob.size -= self.size  # Subtract size from both reudcing mass
-        elif other_blob.color == (0, 255, 0):
+class GreenBlob(Blob): # Inherit from blobs
+    # Define init params
+    def __init__(self, x_bnd, y_bnd, step = [-1,2]):
+        Blob.__init__(self,(0,255,0), x_bnd, y_bnd, step) # Must have self passed
+
+# Consider the blue blob the protagonist and define addition operation
+class BlueBlob(Blob): # Inherit from blobs
+    # Define init params
+    def __init__(self, x_bnd, y_bnd, step = [-1,2]):
+        Blob.__init__(self,(0,0,255), x_bnd, y_bnd, step) # Must have self passed
+
+    def __add__(self,other_blob):
+        # Green adds size, red subtracts sizeRange
+        if( other_blob.color == (255, 0, 0) ):
+            # Red blob subtracts size (damage)
+            self.size -= other_blob.size # Reduce size
+            other_blob.size -= self.size
+        elif( other_blob.color == (0, 255 , 0)):
+            # Green blob adds size (healing)
             self.size += other_blob.size
             other_blob.size = 0
-        elif other_blob.color == (0, 0, 255):
+        elif( other_blob.color == (0, 0 , 255)):
             pass
         else:
-            raise Exception('Combining blobs of unsupported colors')
+            raise Exception('Tried to tried to combine unsupported colors')
 
+def collision_handler(b_list):
+    # Perform addition
+    reds, greens, blues = b_list # Unpack
 
-class GreenBlob(Blob):  # Inherit from blobs
-    # Define init params
-    def __init__(self, x_bnd, y_bnd, step=[-1, 2]):
-        Blob.__init__(self, (0, 255, 0), x_bnd, y_bnd, step)
+    # Perform addition for each in blue_blobs
+    # Perform copies in order to not modify the original dictionary
+    for blue_id, blue_blob in blues.copy().items():
+        for other_blobs in reds, greens: # For each dictionary
+            for other_blob_id, other_blob in other_blobs.copy().items(): # For each dictionary entry
+                # Check if it is itself and pass
+                if blue_blob == other_blob:
+                    pass
+                elif collision_check(blue_blob, other_blob):
+                    blue_blob + other_blob
+                    if other_blob.size <= 0:
+                        del other_blobs[other_blob_id]
+                    if blue_blob.size <= 0:
+                        del blues[blue_id]
+    return reds, greens, blues
 
+def collision_check(blob1, blob2):
+    # Distance vector
+    v = np.array([blob1.x - blob2.x, blob1.y - blob2.y])
 
-class RedBlob(Blob):
-
-    def __init__(self, x_bnd, y_bnd, step=[1, 2]):
-        Blob.__init__(self, (255, 0, 0), x_bnd, y_bnd, step)
-
+    if( np.linalg.norm(v) <= (blob1.size + blob2.size) ):
+        return True
+    else:
+        return False
 
 def draw_environment(blob_list_dict):
-    game_display.fill(WHITE)  # Clear the background
+    game_display.fill(WHITE) # Clear the background
 
-    for blob_dict in blob_list_dict:  # Loop through all dictionary
+    reds, greens, blues = collision_handler(blob_list_dict)
+
+    for blob_dict in reds, greens, blues: # Loop through all dictionary
         for blob_id in blob_dict:
-            blob = blob_dict[blob_id]  # Take the individual blob value
-            pygame.draw.circle(game_display, blob.color, [blob.x, blob.y], blob.size)
-            blob.move()  # Update the position randomly
-            # blob.move_fast()
-
+            blob = blob_dict[blob_id] # Take the individual blob value using id
+            pygame.draw.circle(game_display,blob.color,[blob.x, blob.y],blob.size)
+            blob.move() # Update the position randomly
             blob.check_bounds()
 
     pygame.display.update()
 
+    return reds, greens, blues
 
 def main():
-    # List comprehension for creating list of blue blobs
-    blue_blobs = dict(enumerate([BlueBlob(WIDTH, HEIGHT)
-                                 for i in range(STARTING_BLUE_BLOBS)]))
-    # List comprehension for create list of red blobs
-    red_blobs = dict(enumerate([RedBlob(WIDTH, HEIGHT, STEP)
-                                for i in range(STARTING_RED_BLOBS)]))
 
-    # green_blobs = dict(enumerate([GreenBlob(WIDTH, HEIGHT, STEP)
-    #                               for i in range(STARTING_GREEN_BLOBS)]))
+    red_blobs = [RedBlob(WIDTH,HEIGHT,STEP) for i in range(STARTING_RED_BLOBS)] # List comprehension for create list of red blobs
+    red_blobs = dict(enumerate(red_blobs))
 
-    print('Blue blob size {} Red blob size {}'.format(blue_blobs[0].size, red_blobs[0].size))
+    green_blobs = [GreenBlob(WIDTH, HEIGHT, STEP) for i in range(STARTING_GREEN_BLOBS)]
+    green_blobs = dict(enumerate(green_blobs))
 
-    blue_blobs[0] + red_blobs[0]
-    print('Blue blob size {} Red blob size {}'.format(blue_blobs[0].size, red_blobs[0].size))
+    blue_blobs = [BlueBlob(WIDTH,HEIGHT,STEP) for i in range(STARTING_BLUE_BLOBS)] # List comprehension for creating list of blue blobs
+    blue_blobs = dict(enumerate((blue_blobs))) # Change into a dictionary with numbers being ID's starting at 0
 
-    while True:  # Infinite loop
-        for event in pygame.event.get():  # Grab event from the queue
+    while True: # Infinite loop
+        for event in pygame.event.get(): # Grab event from the queue
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
 
-        draw_environment([blue_blobs, red_blobs])
-        clock.tick(60)  # Capping frames per second
-        # update
+        red_blobs, green_blobs, blue_blobs = draw_environment([red_blobs, green_blobs, blue_blobs])
+        clock.tick(60) # Capping frames per second
+        pygame.display.update
 
-
-if __name__ == '__main__':  # __name__ is a special variable set to __main__ within this scope
+if __name__ == '__main__': ## __name__ is a special variable set to __main__ within this scope
     main()
