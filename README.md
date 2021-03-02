@@ -10,4 +10,5 @@ Lesson 16: Examples of how to make modular class for import \
 Lesson 17: Praticing with inheritance and super() \
 Lesson 18: Practicing examples with decorators \
 Lesson 19: Overloading special operators (addition) \
-Lesson 20: Implementing collision handling and state updating
+Lesson 20: Implementing collision handling and state updating \ 
+Lesson 21: Practice with generators and definitions, generators and iterables are different
