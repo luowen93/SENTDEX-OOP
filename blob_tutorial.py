@@ -2,6 +2,17 @@ import pygame
 import random
 import numpy as np
 from blob import Blob # Requires blob.py class to be in the same folder
+import logging
+
+'''
+DEBUG   detailed information, only of interest when diagnosing problems
+INFO    confirmation that things are working as expected
+WARNING an indication that something unexpected happened, or indicative of some problems
+ERROR   due to a more serious problem, the software has not been able to perform functions
+CRITICAL    A serious error that may indicate inability to run
+'''
+
+logging.basicConfig(filename = 'logfile.log',level = logging.INFO) # Specify the level of debug
 
 STARTING_BLUE_BLOBS = 15
 STARTING_RED_BLOBS = 15
@@ -37,6 +48,7 @@ class BlueBlob(Blob): # Inherit from blobs
         Blob.__init__(self,(0,0,255), x_bnd, y_bnd, step) # Must have self passed
 
     def __add__(self,other_blob):
+        logging.info('Blob add op {} + {}'.format(str(self.color), str(other_blob.color)))
         # Green adds size, red subtracts sizeRange
         if( other_blob.color == (255, 0, 0) ):
             # Red blob subtracts size (damage)
@@ -61,6 +73,9 @@ def collision_handler(b_list):
         for other_blobs in reds, greens: # For each dictionary
             for other_blob_id, other_blob in other_blobs.copy().items(): # For each dictionary entry
                 # Check if it is itself and pass
+                logging.debug('Checking if blobs are touching {} + {}'.format(
+                str(blue_blob.color), str(other_blob.color)
+                ))
                 if blue_blob == other_blob:
                     pass
                 elif collision_check(blue_blob, other_blob):
@@ -108,14 +123,20 @@ def main():
     blue_blobs = dict(enumerate((blue_blobs))) # Change into a dictionary with numbers being ID's starting at 0
 
     while True: # Infinite loop
-        for event in pygame.event.get(): # Grab event from the queue
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        try:
+            for event in pygame.event.get(): # Grab event from the queue
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
 
-        red_blobs, green_blobs, blue_blobs = draw_environment([red_blobs, green_blobs, blue_blobs])
-        clock.tick(60) # Capping frames per second
-        pygame.display.update
+            red_blobs, green_blobs, blue_blobs = draw_environment([red_blobs, green_blobs, blue_blobs])
+            clock.tick(60) # Capping frames per second
+            pygame.display.update
+        except Exception as e:
+            logging.critical(str(e))
+            pygame.quit()
+            quit()
+            break
 
 if __name__ == '__main__': ## __name__ is a special variable set to __main__ within this scope
     main()
